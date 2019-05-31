@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Tutor extends Authenticatable
+class Tutor extends Model
 {
     //
 }
