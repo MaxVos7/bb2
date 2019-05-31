@@ -17,7 +17,7 @@ class ViewLessonsTest extends TestCase
     {
         $this->withExceptionHandling();
 
-        $lesson = factory('App\Lesson')->create();
+        $lesson = create('App\Lesson');
 
         $this->get('/lessons')
             ->assertRedirect('/login');
@@ -32,8 +32,8 @@ class ViewLessonsTest extends TestCase
     {
         $this->signIn();
 
-        $lessonNotByUser = factory('App\Lesson')->create();
-        $lessonByUser = factory('App\Lesson')->create([
+        $lessonNotByUser = create('App\Lesson');
+        $lessonByUser = create('App\Lesson',[
             'user_id' => auth()->id()
         ]);
 
@@ -49,7 +49,7 @@ class ViewLessonsTest extends TestCase
     {
         $this->signIn();
 
-        $lesson = factory('App\Lesson')->create([
+        $lesson = create('App\Lesson', [
             'user_id' => auth()->id()
         ]);
 
@@ -66,7 +66,7 @@ class ViewLessonsTest extends TestCase
 
         $this->signIn();
 
-        $lesson = factory('App\Lesson')->create();
+        $lesson = create('App\Lesson');
 
         $this->get('/lessons/'.$lesson->id);
     }
