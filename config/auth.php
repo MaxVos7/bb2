@@ -46,6 +46,16 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+
+        'tutor' => [
+            'driver' => 'session',
+            'provider' => 'tutors'
+        ],
+
+        'tutor-api' => [
+            'driver' => 'token',
+            'provider' => 'tutors'
+        ]
     ],
 
     /*
@@ -71,10 +81,10 @@ return [
             'model' => App\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'tutors' => [
+            'driver' => 'eloquent',
+            'model' => App\Tutor::class,
+        ]
     ],
 
     /*

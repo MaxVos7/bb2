@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class UserTest extends TestCase
+class TutorTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -15,19 +15,12 @@ class UserTest extends TestCase
      */
     public function it_has_lessons()
     {
-        $user = factory('App\User')->create();
+        $tutor = factory('App\Tutor')->create();
 
         factory('App\Lesson')->create([
-            'user_id' => $user->id
+            'tutor_id' => $tutor->id
         ]);
 
-        $this->assertCount(1, $user->lessons);
-    }
-
-    /**
-     * @test
-     */
-    public function it_has_one_or_more_tutors()
-    {
+        $this->assertCount(1, $tutor->lessons);
     }
 }

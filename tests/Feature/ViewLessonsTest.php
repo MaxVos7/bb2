@@ -20,9 +20,9 @@ class ViewLessonsTest extends TestCase
         $lesson = create('App\Lesson');
 
         $this->get('/lessons')
-            ->assertRedirect('/login');
+            ->assertRedirect('/users/login');
         $this->get('/lessons/'.$lesson->id)
-            ->assertRedirect('/login');
+            ->assertRedirect('/users/login');
     }
 
     /**
@@ -30,7 +30,7 @@ class ViewLessonsTest extends TestCase
      */
     public function a_user_can_view_all_his_lessons()
     {
-        $this->signIn();
+        $this->signInAsUser();
 
         $lessonNotByUser = create('App\Lesson');
         $lessonByUser = create('App\Lesson',[
@@ -45,12 +45,44 @@ class ViewLessonsTest extends TestCase
     /**
      * @test
      */
+    public function a_tutor_can_view_all_his_lessons()
+    {
+        $this->signInAsTutor();
+
+        $lessonNotByTutor = create('App\Lesson');
+        $lessonByTutor = create('App\Lesson', [
+            'tutor_id' => auth()->id()
+        ]);
+
+        $this->get('/lessons')
+            ->assertSee($lessonByTutor->date)
+            ->assertDontSee($lessonNotByTutor->date);
+    }
+
+    /**
+     * @test
+     */
     public function a_user_can_view_one_of_his_lesson()
     {
-        $this->signIn();
+        $this->signInAsUser();
 
         $lesson = create('App\Lesson', [
             'user_id' => auth()->id()
+        ]);
+
+        $this->get('/lessons/'.$lesson->id)
+            ->assertSee($lesson->date);
+    }
+
+    /**
+     * @test
+     */
+    public function a_tutor_can_view_one_of_his_lessons()
+    {
+        $this->signInAsTutor();
+
+        $lesson = create('App\Lesson', [
+            'tutor_id' => auth()->id()
         ]);
 
         $this->get('/lessons/'.$lesson->id)
@@ -64,7 +96,7 @@ class ViewLessonsTest extends TestCase
     {
         $this->expectException('Illuminate\Auth\Access\AuthorizationException');
 
-        $this->signIn();
+        $this->signInAsUser();
 
         $lesson = create('App\Lesson');
 

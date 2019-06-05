@@ -14,28 +14,39 @@ class UserAuthenticateTest extends TestCase
     /**
      * @test
      */
-    public function a_guest_can_view_login_page()
+    public function a_guest_can_view_the_register_page()
     {
-        $this->get('/login')
-            ->assertViewIs('auth.login')
+        $this->get('users/register')
+            ->assertViewIs('auth.register')
             ->assertSuccessful();
     }
 
     /**
      * @test
      */
-    public function an_authenticated_user_may_not_see_the_login_page()
+    public function an_authenticated_user_may_not_view_the_register_page()
     {
-        $this->signIn();
+        $this->signInAsUser();
 
-        $this->get('/login')
-            ->assertRedirect('/home');
+        $this->get('users/register')
+            ->assertRedirect('users/home');
     }
 
     /**
      * @test
      */
-    public function a_guest_can_register_a_user()
+    public function an_authenticated_tutor_may_not_view_the_register_page()
+    {
+        $this->signInAsTutor();
+
+        $this->get('users/register')
+            ->assertRedirect('/tutors/home');
+    }
+
+    /**
+     * @test
+     */
+    public function a_guest_can_register_as_a_user()
     {
         $user = [
             'firstName' => 'John',
@@ -45,7 +56,7 @@ class UserAuthenticateTest extends TestCase
             'password_confirmation' => 'secret1234'
         ];
 
-        $this->post('/register', $user);
+        $this->post('/users/register', $user);
 
         $this->assertAuthenticated();
 
@@ -55,7 +66,39 @@ class UserAuthenticateTest extends TestCase
     /**
      * @test
      */
-    public function a_registered_user_can_login()
+    public function a_guest_can_view_login_page()
+    {
+        $this->get('users/login')
+            ->assertViewIs('auth.login')
+            ->assertSuccessful();
+    }
+
+    /**
+     * @test
+     */
+    public function an_authenticated_user_may_not_see_the_login_page()
+    {
+        $this->signInAsUser();
+
+        $this->get('users/login')
+            ->assertRedirect('users/home');
+    }
+
+    /**
+     * @test
+     */
+    public function an_authenticated_tutor_may_not_see_the_login_page()
+    {
+        $this->signInAsTutor();
+
+        $this->get('/tutors/login')
+            ->assertRedirect('/tutors/home');
+    }
+
+    /**
+     * @test
+     */
+    public function a_user_can_login()
     {
         $user = create('App\User', [
             'password' => bcrypt($password = 'secret1234')
@@ -66,8 +109,8 @@ class UserAuthenticateTest extends TestCase
             'password' => $password
         ];
 
-        $this->post('/login', $login_credentials)
-            ->assertRedirect('/home');
+        $this->post('users/login', $login_credentials)
+            ->assertRedirect('users/home');
 
         $this->assertAuthenticatedAs($user);
     }
@@ -88,7 +131,7 @@ class UserAuthenticateTest extends TestCase
             'password' => 'wrongPassword'
         ];
 
-        $this->post('/login', $login_credentials)
+        $this->post('users/login', $login_credentials)
             ->assertSessionHasErrors('email');
     }
 
@@ -102,13 +145,13 @@ class UserAuthenticateTest extends TestCase
             'password' => bcrypt($password = 'secret1234')
         ]);
 
-        $response = $this->post('/login', [
+        $response = $this->post('/users/login', [
             'email' => $user->email,
             'password' => $password,
             'remember' => 'on'
         ]);
 
-        $response->assertRedirect('/home');
+        $response->assertRedirect('users/home');
 
         $response->assertCookie(Auth::guard()->getRecallerName(), vsprintf('%s|%s|%s', [
             $user->id,
@@ -117,5 +160,18 @@ class UserAuthenticateTest extends TestCase
         ]));
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    /**
+     * @test
+     */
+    public function a_user_can_logout()
+    {
+        $this->signInAsUser();
+
+        $this->post('/users/logout');
+
+        $this->assertGuest();
+        $this->assertGuest('tutor');
     }
 }
